@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+}
+
+/* NAVBAR */
+nav {
+    position: relative;
+    padding: 20px 40px;
+}
+
+.logo {
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.logo img {
+    width: 80px;
+}
+
+.nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+}
+
+nav a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+
+/* GRID */
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    padding: 20px;
+}
+
+/* PRODUCT */
+.product {
+    text-align: center;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.5s ease;
+}
+
+.product.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.product img {
+    width: 100%;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.product:hover img {
+    transform: scale(1.05);
+}
+
+.name {
+    margin-top: 8px;
+}
+
+.price {
+    color: green;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav>
+    <div class="logo">
+        <a href = "index.html"><img src="https://i.ibb.co/qWn9WxL/Untitled-design.png"></a href>
+    </div>
+
+    <div class="nav-links">
+        <a href="aboutm.html">About</a>
+        <a href="products.html">Products</a>
+        <a href="Contact.html">Contact</a>
+
+        <!-- CART -->
+        <a href="cart.html">Cart 🛒 (<span id="cart-count">0</span>)</a>
+    </div>
+</nav>
+
+<!-- PRODUCTS -->
+<div class="container" id="container"></div>
+
+<script>
+const productsData = [
+  {img: "https://media.jdsports.com/i/finishline/HQ7555_001_P1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Nike Air Max", price: "$120"},
+  {img: "https://media.jdsports.com/i/finishline/1162710_700_P1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Adidas Runner", price: "$95"},
+  {img: "https://media.jdsports.com/i/finishline/IB6610_600_P1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Puma Sport", price: "$110"},
+  {img: "https://media.jdsports.com/i/finishline/3MF10044_050_P1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "On Cloud", price: "$85"},
+  {img: "https://media.jdsports.com/i/finishline/IF3900_417_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Nike Zoom", price: "$130"},
+  {img: "https://media.jdsports.com/i/finishline/KB2726_100_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Jordan Low", price: "$90"},
+  {img: "https://media.jdsports.com/i/finishline/JM9388_734_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Adidas Boost", price: "$140"},
+  {img: "https://media.jdsports.com/i/finishline/IM7452_652_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Nike Retro", price: "$105"},
+  {img: "https://media.jdsports.com/i/finishline/KB3388_001_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Puma Street", price: "$88"},
+  {img: "https://media.jdsports.com/i/finishline/IV9854_417_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Nike Trainer", price: "$115"},
+  {img: "https://media.jdsports.com/i/finishline/JJ1389_683_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Adidas Flex", price: "$100"},
+  {img: "https://media.jdsports.com/i/finishline/JY2403_001_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Jordan Mid", price: "$125"},
+  {img: "https://media.jdsports.com/i/finishline/KD7980_001_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Nike Court", price: "$98"},
+  {img: "https://media.jdsports.com/i/finishline/IF0797_677_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Puma Elite", price: "$110"},
+  {img: "https://media.jdsports.com/i/finishline/FN5001_010_M1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200", name: "Nike Pro", price: "$135"}
+];
+
+const container = document.getElementById("container");
+
+/* repeat to 36 */
+let fullList = [];
+while (fullList.length < 36) {
+  fullList = fullList.concat(productsData);
+}
+fullList = fullList.slice(0, 36);
+
+/* create cards */
+fullList.forEach((item, index) => {
+  const div = document.createElement("div");
+  div.classList.add("product");
+
+  const pageNumber = (index % 15) + 1;
+
+  div.innerHTML = `
+    <a href="${pageNumber}.html">
+      <img src="${item.img}">
+    </a>
+    <div class="name">${item.name}</div>
+    <div class="price">${item.price}</div>
+  `;
+
+  container.appendChild(div);
+});
+
+/* scroll animation */
+const products = document.querySelectorAll('.product');
+
+function showOnScroll() {
+  const triggerBottom = window.innerHeight * 0.85;
+
+  products.forEach(product => {
+    const boxTop = product.getBoundingClientRect().top;
+
+    if (boxTop < triggerBottom && boxTop > 0) {
+      product.classList.add('show');
+    } else {
+      product.classList.remove('show');
+    }
+  });
+}
+
+window.addEventListener('scroll', showOnScroll);
+showOnScroll();
+
+/* CART COUNT */
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    document.getElementById("cart-count").innerText = cart.length;
+}
+
+updateCartCount();
+</script>
+
+</body>
+</html>
