@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+}
+
+/* NAV */
+nav {
+    position: relative;
+    padding: 20px 40px;
+}
+
+.logo {
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.logo img {
+    width: 80px;
+}
+
+.nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+}
+
+nav a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+
+/* PRODUCT PAGE */
+.product-page {
+    display: flex;
+    gap: 80px;
+    padding: 50px;
+}
+
+.product-img img {
+    width: 500px;
+}
+
+.product-info {
+    max-width: 400px;
+}
+
+.price {
+    font-size: 22px;
+    margin: 15px 0;
+}
+
+/* SIZE */
+.sizes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.size {
+    border: 1px solid black;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.size.active {
+    background: black;
+    color: white;
+}
+
+/* QUANTITY */
+.quantity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.quantity button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+}
+
+#qty {
+    font-size: 18px;
+    width: 40px;
+    text-align: center;
+}
+
+/* BUTTONS */
+button {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.add-cart {
+    background: black;
+    color: white;
+    border: none;
+}
+
+.buy-now {
+    background: white;
+    border: 2px solid black;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+    <div class="logo">
+        <img src="https://i.ibb.co/qWn9WxL/Untitled-design.png">
+    </div>
+
+    <div class="nav-links">
+        <a href="aboutm.html">About</a>
+        <a href="products.html">Products</a>
+        <a href="Contact.html">Contact</a>
+        <a href="cart.html">Cart 🛒 (<span id="cart-count">0</span>)</a>
+    </div>
+</nav>
+
+<div class="product-page">
+
+    <div class="product-img">
+        <img src="https://media.jdsports.com/i/finishline/HQ7555_001_P1?bg=rgb(237%2C237%2C237)&fmt=auto&w=1200&h=1200">
+    </div>
+
+    <div class="product-info">
+        <h1 id="name">Nike Air Max</h1>
+        <div class="price" id="price">$120</div>
+
+        <h3>Select Size</h3>
+        <div class="sizes">
+            <div class="size">7</div>
+            <div class="size">8</div>
+            <div class="size">9</div>
+            <div class="size">10</div>
+            <div class="size">11</div>
+            <div class="size">12</div>
+        </div>
+
+        <!-- QUANTITY -->
+        <h3>Quantity</h3>
+        <div class="quantity">
+            <button onclick="changeQty(-1)">-</button>
+            <div id="qty">1</div>
+            <button onclick="changeQty(1)">+</button>
+        </div>
+
+        <button class="add-cart" onclick="addToCart()">Add to Cart</button>
+        <button class="buy-now" onclick="buyNow()">Buy It Now</button>
+    </div>
+
+</div>
+
+<script>
+let selectedSize = null;
+let quantity = 1;
+
+/* SIZE SELECT */
+document.querySelectorAll(".size").forEach(size => {
+    size.addEventListener("click", () => {
+        document.querySelectorAll(".size").forEach(s => s.classList.remove("active"));
+        size.classList.add("active");
+        selectedSize = size.innerText;
+    });
+});
+
+/* QUANTITY */
+function changeQty(amount) {
+    quantity += amount;
+    if (quantity < 1) quantity = 1;
+    document.getElementById("qty").innerText = quantity;
+}
+
+/* ADD TO CART */
+function addToCart() {
+    if (!selectedSize) {
+        alert("Select a size");
+        return;
+    }
+
+    const product = {
+        name: document.getElementById("name").innerText,
+        price: parseInt(document.getElementById("price").innerText.replace("$","")),
+        image: document.querySelector(".product-img img").src,
+        size: selectedSize,
+        quantity: quantity
+    };
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.push(product);
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    updateCartCount();
+    alert("Added to cart!");
+}
+
+/* BUY NOW */
+function buyNow() {
+    if (!selectedSize) {
+        alert("Select a size");
+        return;
+    }
+
+    addToCart();
+    window.location.href = "cart.html";
+}
+
+/* CART COUNT */
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    document.getElementById("cart-count").innerText = cart.length;
+}
+
+updateCartCount();
+</script>
+
+</body>
+</html>
