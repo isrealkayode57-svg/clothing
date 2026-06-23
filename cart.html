@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cart</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Roboto', sans-serif; background:#f7f7f7; margin:0; padding:20px; }
+h1 { text-align:center; margin-bottom:30px; font-weight:700; }
+
+/* CART CONTAINER */
+.cart-container { max-width:1200px; margin:auto; display:flex; gap:30px; flex-wrap:wrap; }
+
+/* CART ITEMS */
+#cart-items { flex:2; background:#fff; padding:20px; border-radius:8px; }
+
+/* ITEM */
+.item { display:flex; align-items:center; border-bottom:1px solid #eee; padding:15px 0; }
+.item img { width:120px; border-radius:6px; }
+.info { flex:1; margin-left:20px; }
+.info p { margin:5px 0; }
+.price { font-weight:700; margin-right:15px; }
+.remove { background:none; border:none; color:#888; font-size:20px; cursor:pointer; transition:color 0.2s; }
+.remove:hover { color:red; }
+
+/* SUMMARY BOX */
+.summary { flex:1; background:#fff; padding:20px; border-radius:8px; height:fit-content; }
+.summary h2 { margin-bottom:20px; }
+.summary div { display:flex; justify-content:space-between; margin:10px 0; }
+.total { font-weight:700; font-size:22px; margin-top:15px; }
+.checkout-btn { width:100%; padding:18px; background:black; color:white; font-size:18px; border:none; cursor:pointer; margin-top:20px; border-radius:6px; transition:background 0.2s; }
+.checkout-btn:hover { background:#222; }
+.clear-cart-btn { width:100%; padding:12px; background:#eee; border:none; border-radius:6px; cursor:pointer; margin-top:10px; font-weight:500; }
+.clear-cart-btn:hover { background:#ddd; }
+
+/* MODAL */
+#checkout-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000; }
+.modal-bg { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.5); top:0; left:0; }
+.modal-content { position:relative; background:#fff; width:400px; max-width:90%; margin:100px auto; padding:30px; border-radius:8px; z-index:10; box-shadow:0 4px 15px rgba(0,0,0,0.2); }
+.modal-content h2 { margin-top:0; margin-bottom:20px; text-align:center; }
+.modal-content input { width:100%; padding:12px; margin:8px 0; border:1px solid #ccc; border-radius:6px; font-size:16px; }
+.modal-content button { width:100%; padding:15px; margin-top:15px; font-size:16px; border:none; border-radius:6px; cursor:pointer; }
+#modal-pay-btn { background:black; color:white; font-weight:700; }
+#modal-pay-btn:hover { background:#222; }
+.close-btn { position:absolute; top:10px; right:15px; font-size:22px; border:none; background:none; cursor:pointer; }
+</style>
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+</head>
+<body>
+
+<h1>Your Cart</h1>
+
+<div class="cart-container">
+    <div id="cart-items"></div>
+
+    <div class="summary">
+        <h2>Summary</h2>
+        <div><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+        <div><span>Shipping</span><span id="shipping">$0.00</span></div>
+        <div><span>Tax (8%)</span><span id="tax">$0.00</span></div>
+        <div class="total"><span>Total</span><span id="total">$0.00</span></div>
+
+        <button class="checkout-btn" id="checkout-btn">Checkout</button>
+        <button class="clear-cart-btn" onclick="clearCart()">Clear Cart</button>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div id="checkout-modal">
+    <div class="modal-bg"></div>
+    <div class="modal-content">
+        <button class="close-btn" id="close-modal">×</button>
+        <h2>Shipping Information</h2>
+        <input type="text" id="modal-name" placeholder="Full Name">
+        <input type="text" id="modal-address" placeholder="Shipping Address">
+        <input type="email" id="modal-email" placeholder="Email">
+        <button id="modal-pay-btn">Pay with PayPal</button>
+    </div>
+</div>
+
+<script>
+emailjs.init("rtLqW_4GqHYwalb8Z"); // Replace with your EmailJS public key
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let container = document.getElementById("cart-items");
+
+function renderCart() {
+    container.innerHTML = "";
+    let subtotal = 0;
+    cart.forEach((item,index)=>{
+        let qty = item.quantity || 1;
+        let itemTotal = Number(item.price)*qty;
+        subtotal += itemTotal;
+
+        container.innerHTML += `
+            <div class="item">
+                <img src="${item.image}">
+                <div class="info">
+                    <p>${item.name}</p>
+                    <p>Size: ${item.size||"-"} | Qty: ${qty}</p>
+                </div>
+                <div class="price">$${itemTotal.toFixed(2)}</div>
+                <button class="remove" onclick="removeItem(${index})">×</button>
+            </div>
+        `;
+    });
+
+    let shipping = subtotal>0?10:0;
+    let tax = subtotal*0.08;
+    let total = subtotal+shipping+tax;
+
+    document.getElementById("subtotal").innerText="$"+subtotal.toFixed(2);
+    document.getElementById("shipping").innerText="$"+shipping.toFixed(2);
+    document.getElementById("tax").innerText="$"+tax.toFixed(2);
+    document.getElementById("total").innerText="$"+total.toFixed(2);
+}
+
+function removeItem(index){ cart.splice(index,1); localStorage.setItem("cart",JSON.stringify(cart)); renderCart(); }
+function clearCart(){ cart=[]; localStorage.removeItem("cart"); renderCart(); }
+
+renderCart();
+
+// Modal logic
+const modal = document.getElementById("checkout-modal");
+document.getElementById("checkout-btn").addEventListener("click",()=>{ modal.style.display="block"; });
+document.getElementById("close-modal").addEventListener("click",()=>{ modal.style.display="none"; });
+document.querySelector(".modal-bg").addEventListener("click",()=>{ modal.style.display="none"; });
+
+// PayPal + EmailJS
+document.getElementById("modal-pay-btn").addEventListener("click",()=>{
+    let name=document.getElementById("modal-name").value.trim();
+    let address=document.getElementById("modal-address").value.trim();
+    let email=document.getElementById("modal-email").value.trim();
+    if(!name||!address||!email){ alert("Please fill all shipping info."); return; }
+
+    let subtotal=cart.reduce((sum,i)=>sum+i.price*(i.quantity||1),0);
+    let shipping=subtotal>0?10:0;
+    let tax=subtotal*0.08;
+    let total=subtotal+shipping+tax;
+
+   let itemsText = cart.map(i => `
+<tr>
+  <td style="padding:8px; border-bottom:1px solid #ddd;">${i.name}</td>
+  <td style="text-align:center; border-bottom:1px solid #ddd;">${i.size || "-"}</td>
+  <td style="text-align:center; border-bottom:1px solid #ddd;">${i.quantity || 1}</td>
+  <td style="text-align:right; border-bottom:1px solid #ddd;">$${i.price.toFixed(2)}</td>
+</tr>
+`).join("");
+
+    emailjs.send("IzzyAJ","template_21c9prm",{
+        customer_name:name,
+        customer_email:email,
+        shipping_address:address,
+        cart_items:itemsText,
+        subtotal:"$"+subtotal.toFixed(2),
+        shipping:"$"+shipping.toFixed(2),
+        tax:"$"+tax.toFixed(2),
+        total:"$"+total.toFixed(2)
+    }).then(()=>{console.log("Order email sent!");},
+       (err)=>{console.error("Email sending failed:",err);}
+    );
+
+    // Redirect to PayPal.Me
+    window.location.href=`https://www.paypal.me/what005/${total.toFixed(2)}`;
+
+    cart=[];
+    localStorage.removeItem("cart");
+    renderCart();
+    modal.style.display="none";
+});
+</script>
+
+</body>
+</html>
